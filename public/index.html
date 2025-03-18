@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Manager</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body onload="loadAllProducts()">
+    <h1>Product Manager</h1>
+
+    <div class="container">
+        <!-- Bảng danh sách bên trái -->
+        <div class="sidebar">
+            <h2>All Products</h2>
+            <table id="allProductsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="allProductsList"></tbody>
+            </table>
+        </div>
+
+        <!-- Form bên phải -->
+        <div class="main-content">
+            <!-- Form thêm sản phẩm -->
+            <div class="form-container">
+                <h2>Add Product</h2>
+                <input type="text" id="productName" placeholder="Product Name">
+                <input type="number" id="productPrice" placeholder="Price" step="0.01">
+                <input type="text" id="productDescription" placeholder="Description">
+                <button onclick="addProduct()">Add</button>
+            </div>
+
+            <!-- Form tìm kiếm -->
+            <div class="form-container">
+                <h2>Search Products</h2>
+                <input type="text" id="searchName" placeholder="Search by Name">
+                <button onclick="searchProducts()">Search</button>
+            </div>
+
+            <!-- Kết quả tìm kiếm -->
+            <div id="result">
+                <h3>Search Results:</h3>
+                <ul id="productList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal để sửa sản phẩm -->
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Edit Product</h2>
+            <input type="hidden" id="editProductId">
+            <input type="text" id="editName" placeholder="Product Name">
+            <input type="number" id="editPrice" placeholder="Price" step="0.01">
+            <input type="text" id="editDescription" placeholder="Description">
+            <button onclick="saveEdit()">Save</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>
