@@ -1,89 +1,92 @@
 const express = require('express');
-const { Pool } = require('pg');
-require('dotenv').config();
+const {Sequelize, DataTypes} = require('sequelize');
+const dotenv = require('dotenv')
+const dotenvExpand = require('dotenv-expand')
+
+dotenvExpand.expand(dotenv.config())
 
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
-// Kết nối PostgreSQL
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+const sequelize = new Sequelize(
+    process.env.DB_DATABASE || 'product_db',
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT || 5432,
+        dialect: 'postgres',
+        logging: false,
+        dialectOptions: {
+            ssl: {
+                require: true,
+                rejectUnauthorized: false
+            }
+        }
+    });
+
+const Product = sequelize.define('Product', {
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    price: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    },
+    description: {
+        type: DataTypes.TEXT,
+    },
+}, {
+    tableName: 'products',
+    timestamps: false,
 });
 
-// API thêm sản phẩm
+sequelize.sync();
+
 app.post('/products', async (req, res) => {
-    const { name, price, description } = req.body;
     try {
-        const result = await pool.query(
-            'INSERT INTO products (name, price, description) VALUES ($1, $2, $3) RETURNING *',
-            [name, price, description]
-        );
-        res.status(201).json(result.rows[0]);
+        const product = await Product.create(req.body);
+        res.status(201).json(product);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({error: err.message});
     }
 });
 
-// API tìm kiếm sản phẩm theo tên
 app.get('/products', async (req, res) => {
-    const { name } = req.query;
     try {
-        if (name) {
-            const result = await pool.query(
-                'SELECT * FROM products WHERE name ILIKE $1',
-                [`%${name}%`]
-            );
-            res.json(result.rows);
-        } else {
-            const result = await pool.query('SELECT * FROM products');
-            res.json(result.rows);
-        }
+        const products = req.query.name
+            ? await Product.findAll({where: {name: {[Sequelize.Op.iLike]: `%${req.query.name}%`}}})
+            : await Product.findAll();
+        res.json(products);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({error: err.message});
     }
 });
 
-// API xoá sản phẩm
 app.delete('/products/:id', async (req, res) => {
-    const { id } = req.params;
     try {
-        const result = await pool.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
-        if (result.rowCount === 0) {
-            res.status(404).json({ error: 'Product not found' });
-        } else {
-            res.status(200).json({ message: 'Product deleted successfully' });
-        }
+        const deleted = await Product.destroy({where: {id: req.params.id}});
+        if (!deleted) return res.status(404).json({error: 'Product not found'});
+        res.json({message: 'Product deleted successfully'});
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({error: err.message});
     }
 });
 
-// API sửa sản phẩm
 app.put('/products/:id', async (req, res) => {
-    const { id } = req.params;
-    const { name, price, description } = req.body;
     try {
-        const result = await pool.query(
-            'UPDATE products SET name = $1, price = $2, description = $3 WHERE id = $4 RETURNING *',
-            [name, price, description, id]
-        );
-        if (result.rowCount === 0) {
-            res.status(404).json({ error: 'Product not found' });
-        } else {
-            res.status(200).json(result.rows[0]);
-        }
+        const [updated] = await Product.update(req.body, {where: {id: req.params.id}});
+        if (!updated) return res.status(404).json({error: 'Product not found'});
+        const updatedProduct = await Product.findByPk(req.params.id);
+        res.json(updatedProduct);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({error: err.message});
     }
 });
 
-// Khởi động server
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
