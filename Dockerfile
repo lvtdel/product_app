@@ -9,10 +9,13 @@ COPY . .
 # Install dependencies
 RUN npm install
 
+# Install nginx
+RUN apt-get update && apt-get install -y nginx
 
+# Copy nginx config
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80 (NGINX) and 3000 (app, optional)
-EXPOSE 3000
+EXPOSE 1000
 
 # Start both NGINX and Node.js using a script
-CMD bash -c "node index.js"
+CMD bash -c "node index.js & nginx -g 'daemon off;'"
