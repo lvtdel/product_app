@@ -98,7 +98,13 @@ app.get('/products', async (req, res) => {
 // Get Total Product Count API
 app.get('/products/count', async (req, res) => {
     try {
-        const totalProducts = await redisClient.get('total_products') || 0; // Default to 0 if key doesn't exist
+        let totalProducts = await redisClient.get('total_products'); // Try to fetch from Redis
+
+        if (totalProducts === null) {
+            totalProducts = await Product.count();
+            await redisClient.set('total_products', totalProducts);
+        }
+
         res.json({ totalProducts: parseInt(totalProducts) });
     } catch (err) {
         res.status(500).json({ error: err.message });
