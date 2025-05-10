@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Manager</title>
     <link rel="stylesheet" href="/style.css">
 </head>
+
 <body onload="loadAllProducts()">
     <h1>Product Manager Version 5</h1>
 
@@ -13,6 +15,8 @@
         <!-- Bảng danh sách bên trái -->
         <div class="sidebar">
             <h2>All Products</h2>
+            <p id="productCount">Loading total...</p>
+
             <table id="allProductsTable">
                 <thead>
                     <tr>
@@ -68,4 +72,5 @@
 
     <script src="/script.js"></script>
 </body>
+
 </html>

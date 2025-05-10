@@ -46,10 +46,12 @@ async function addProduct() {
         document.getElementById('productPrice').value = '';
         document.getElementById('productDescription').value = '';
         loadAllProducts(); // Cập nhật bảng bên trái
-        searchProducts(); // Cập nhật danh sách tìm kiếm
+        searchProducts();  // Cập nhật danh sách tìm kiếm
+        loadProductCount(); // 👉 Cập nhật tổng số sản phẩm
     } else {
         alert('Error adding product');
     }
+
 }
 
 async function searchProducts() {
@@ -80,10 +82,12 @@ async function deleteProduct(id) {
         if (response.ok) {
             alert('Product deleted successfully!');
             loadAllProducts(); // Cập nhật bảng
-            searchProducts(); // Cập nhật danh sách tìm kiếm
+            searchProducts();  // Cập nhật danh sách tìm kiếm
+            loadProductCount(); // 👉 Cập nhật tổng số sản phẩm
         } else {
             alert('Error deleting product');
         }
+
     }
 }
 
@@ -122,3 +126,22 @@ async function saveEdit() {
 function closeModal() {
     document.getElementById('editModal').style.display = 'none';
 }
+
+function loadProductCount() {
+    fetch('http://localhost:3000/products/count')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('productCount').textContent = `Total: ${data.totalProducts}`;
+        })
+        .catch(error => {
+            console.error('Error fetching product count:', error);
+            document.getElementById('productCount').textContent = 'Total: N/A';
+        });
+}
+
+
+// Gọi hàm khi trang tải
+window.onload = () => {
+    loadAllProducts();
+    loadProductCount();
+};
