@@ -128,7 +128,7 @@ function closeModal() {
 }
 
 function loadProductCount() {
-    fetch('http://localhost:3000/products/count')
+    fetch('/products/count')
         .then(response => response.json())
         .then(data => {
             document.getElementById('productCount').textContent = `Total: ${data.totalProducts}`;
