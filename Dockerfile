@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y nginx
 # Copy nginx config
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 1000
+EXPOSE 10000
 
 # Start both NGINX and Node.js using a script
 CMD bash -c "node index.js & nginx -g 'daemon off;'"
